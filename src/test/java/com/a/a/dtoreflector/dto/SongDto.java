@@ -1,6 +1,11 @@
-package com.a.a.dtoreflector.domain;
+package com.a.a.dtoreflector.dto;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
 
 import com.a.a.dtoreflector.annotation.DtoField;
+import com.a.a.dtoreflector.annotation.DtoBigDecimalFromStr;
+import com.a.a.dtoreflector.annotation.DtoBigIntegerFromStr;
 
 public class SongDto implements Comparable<SongDto>{
 	
@@ -9,6 +14,12 @@ public class SongDto implements Comparable<SongDto>{
 	
 	@DtoField(name="artist")
 	private ArtistDto artistDto;
+	
+	@DtoBigIntegerFromStr
+	private BigInteger soldRecordsCount;
+	
+	@DtoBigDecimalFromStr
+	private BigDecimal soldRecordsValue;
 
 	public String getTitle() {
 		return title;
@@ -32,6 +43,18 @@ public class SongDto implements Comparable<SongDto>{
 
 	public void setArtistDto(ArtistDto artistDto) {
 		this.artistDto = artistDto;
+	}
+	public BigInteger getSoldRecordsCount() {
+		return soldRecordsCount;
+	}
+	public void setSoldRecordsCount(BigInteger soldRecordsCount) {
+		this.soldRecordsCount = soldRecordsCount;
+	}
+	public BigDecimal getSoldRecordsValue() {
+		return soldRecordsValue;
+	}
+	public void setSoldRecordsValue(BigDecimal soldRecordsValue) {
+		this.soldRecordsValue = soldRecordsValue;
 	}
 
 	@Override
@@ -66,7 +89,8 @@ public class SongDto implements Comparable<SongDto>{
 
 	@Override
 	public String toString() {
-		return "SongDto [title=" + title + ", duration=" + duration + ", artistDto=" + artistDto + "]";
+		return "SongDto [title=" + title + ", duration=" + duration + ", artistDto=" + artistDto + ", soldRecordsCount="
+				+ soldRecordsCount + ", soldRecordsValue=" + soldRecordsValue + "]";
 	}
 
 	@Override

@@ -1,4 +1,4 @@
-package com.a.a.dtoreflector.domain;
+package com.a.a.dtoreflector.dto;
 
 import com.a.a.dtoreflector.annotation.DtoField;
 import com.a.a.dtoreflector.annotation.DtoIgnoreIfHasValue;

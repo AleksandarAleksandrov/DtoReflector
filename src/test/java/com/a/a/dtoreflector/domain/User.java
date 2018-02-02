@@ -1,5 +1,7 @@
 package com.a.a.dtoreflector.domain;
 
+import java.util.Arrays;
+
 public class User {
 	
 	private String firstName;
@@ -7,6 +9,7 @@ public class User {
 	private String email;
 	private int age;
 	private String uuid;
+	private Song[] likedSongs;
 	
 	public User(String firstName, String lastName, String email, int age, String uuid) {
 		super();
@@ -47,11 +50,17 @@ public class User {
 	public void setUuid(String uuid) {
 		this.uuid = uuid;
 	}
+	public Song[] getLikedSongs() {
+		return likedSongs;
+	}
+	public void setLikedSongs(Song[] likedSongs) {
+		this.likedSongs = likedSongs;
+	}
 
 	@Override
 	public String toString() {
 		return "User [firstName=" + firstName + ", lastName=" + lastName + ", email=" + email + ", age=" + age
-				+ ", uuid=" + uuid + "]";
+				+ ", uuid=" + uuid + ", likedSongs=" + Arrays.toString(likedSongs) + "]";
 	}
 
 }

@@ -7,20 +7,20 @@ public class Song {
 	private String title;
 	private int year;
 	private double duration;
-	
-	
-	
+
+	private String soldRecordsCount;
+
+	private String soldRecordsValue;
+
 	public Song() {
 		super();
 	}
-	
+
 	public Song(String title, double duration) {
 		super();
 		this.title = title;
 		this.duration = duration;
 	}
-
-
 
 	public Song(String title, double duration, Artist artist) {
 		super();
@@ -29,41 +29,65 @@ public class Song {
 		this.artist = artist;
 	}
 
-
-
 	private Artist artist;
 	private List<Producer> producers;
-	
+
 	public String getTitle() {
 		return title;
 	}
+
 	public void setTitle(String title) {
 		this.title = title;
 	}
+
 	public int getYear() {
 		return year;
 	}
+
 	public void setYear(int year) {
 		this.year = year;
 	}
+
 	public double getDuration() {
 		return duration;
 	}
+
 	public void setDuration(double duration) {
 		this.duration = duration;
 	}
+
 	public Artist getArtist() {
 		return artist;
 	}
+
 	public void setArtist(Artist artist) {
 		this.artist = artist;
 	}
+
 	public List<Producer> getProducers() {
 		return producers;
 	}
+
 	public void setProducers(List<Producer> producers) {
 		this.producers = producers;
 	}
+
+	public String getSoldRecordsCount() {
+		return soldRecordsCount;
+	}
+
+	public void setSoldRecordsCount(String soldRecordsCount) {
+		this.soldRecordsCount = soldRecordsCount;
+	}
+
+	public String getSoldRecordsValue() {
+		return soldRecordsValue;
+	}
+
+	public void setSoldRecordsValue(String soldRecordsValue) {
+		this.soldRecordsValue = soldRecordsValue;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -75,6 +99,7 @@ public class Song {
 		result = prime * result + year;
 		return result;
 	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -95,11 +120,12 @@ public class Song {
 			return false;
 		return true;
 	}
+
 	@Override
 	public String toString() {
-		return "Song [title=" + title + ", year=" + year + ", duration=" + duration + ", artist=" + artist
-				+ ", producers=" + producers + "]";
+		return "Song [title=" + title + ", year=" + year + ", duration=" + duration + ", soldRecordsCount="
+				+ soldRecordsCount + ", soldRecordsValue=" + soldRecordsValue + ", artist=" + artist + ", producers="
+				+ producers + "]";
 	}
-	
-	
+
 }
