@@ -35,6 +35,11 @@ public class ArtistDto {
 	public void setDtoAlias(String dtoAlias) {
 		this.dtoAlias = dtoAlias;
 	}
+
+	@Override
+	public String toString() {
+		return "ArtistDto [firstName=" + firstName + ", lastName=" + lastName + ", dtoAlias=" + dtoAlias + "]";
+	}
 	
 	
 

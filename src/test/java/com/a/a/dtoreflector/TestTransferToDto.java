@@ -3,8 +3,13 @@ package com.a.a.dtoreflector;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Test;
 
+import com.a.a.dtoreflector.domain.Album;
+import com.a.a.dtoreflector.domain.AlbumDto;
 import com.a.a.dtoreflector.domain.Artist;
 import com.a.a.dtoreflector.domain.ArtistDto;
 import com.a.a.dtoreflector.domain.Song;
@@ -18,7 +23,7 @@ public class TestTransferToDto {
 	public void testWithCreatedObject() {
 		User user = new User("John", "Doe", "john@doe.com", 33, "abcd-efg-123-hij-456");
 		UserDto dto = new UserDto();
-		DtoReflector.transferToDto(user, dto);
+		DtoReflector.toDto(user, dto);
 		assertEquals(user.getFirstName(), dto.getFirstName());
 		assertEquals(user.getLastName(), dto.getLastName());
 		assertEquals(user.getUuid(), dto.getUniqueIdentifier());		
@@ -27,7 +32,7 @@ public class TestTransferToDto {
 	@Test
 	public void testWithClazz() {
 		User user = new User("John", "Doe", "john@doe.com", 33, "abcd-efg-123-hij-456");
-		UserDto dto = DtoReflector.transferToDto(user, UserDto.class);
+		UserDto dto = DtoReflector.toDto(user, UserDto.class);
 		assertEquals(user.getFirstName(), dto.getFirstName());
 		assertEquals(user.getLastName(), dto.getLastName());
 		assertEquals(user.getUuid(), dto.getUniqueIdentifier());
@@ -36,7 +41,7 @@ public class TestTransferToDto {
 	@Test
 	public void testDtoIgnoreAnnotation() {
 		User user = new User("John", "Doe", "john@doe.com", 33, "abcd-efg-123-hij-456");
-		UserDto dto = DtoReflector.transferToDto(user, UserDto.class);
+		UserDto dto = DtoReflector.toDto(user, UserDto.class);
 		assertEquals(user.getFirstName(), dto.getFirstName());
 		assertEquals(user.getLastName(), dto.getLastName());
 		assertEquals(user.getUuid(), dto.getUniqueIdentifier());
@@ -46,12 +51,12 @@ public class TestTransferToDto {
 	@Test
 	public void testDtoIgnoreIfHasValueAnnotation() {
 		Artist artist = new Artist("Michael", "Jackson", "MJ", 51);
-		ArtistDto dto = DtoReflector.transferToDto(artist, ArtistDto.class);
+		ArtistDto dto = DtoReflector.toDto(artist, ArtistDto.class);
 		assertEquals(artist.getAlias(), dto.getDtoAlias());
 		Artist artist2 = new Artist("Saul", "Hudson", "Slash", 51);
 		ArtistDto dto2 = new ArtistDto();
 		dto2.setDtoAlias("Super Alias");
-		DtoReflector.transferToDto(artist2, dto2);
+		DtoReflector.toDto(artist2, dto2);
 		assertNotEquals(artist2.getAlias(), dto2.getDtoAlias());
 		assertEquals(artist2.getFirstName(), dto2.getFirstName());
 		assertEquals(artist2.getLastName(), dto2.getLastName());
@@ -65,10 +70,27 @@ public class TestTransferToDto {
 		song.setYear(1982);
 		song.setDuration(4.55);
 		song.setArtist(songArtist);
-		SongDto songDto = DtoReflector.transferToDto(song, SongDto.class);
+		SongDto songDto = DtoReflector.toDto(song, SongDto.class);
 		assertEquals(songDto.getArtistDto().getFirstName(), songArtist.getFirstName());
 		assertEquals(songDto.getArtistDto().getLastName(), songArtist.getLastName());
 		assertEquals(songDto.getArtistDto().getDtoAlias(), songArtist.getAlias());
+	}
+	
+	@Test
+	public void testDtoHavingCollection() {
+		Album album = new Album();
+		album.setYear(2018);
+		Artist albumArtist = new Artist("Ed", "Shereen", null, 28);
+		album.setArtist(albumArtist);
+		List<Song> albumSongs = new ArrayList<>();
+		albumSongs.add(new Song("Shape of you", 4.55, albumArtist));
+		albumSongs.add(new Song("The night we met", 3.23));
+		albumSongs.add(new Song("Once in a lifetime", 3.47));
+		albumSongs.add(new Song("Yesterday felt good", 3.03, albumArtist));
+		album.setSongs(albumSongs);
+		System.out.println(album);
+		AlbumDto dto = DtoReflector.toDto(album, AlbumDto.class);
+		System.out.println(dto);
 	}
 
 }

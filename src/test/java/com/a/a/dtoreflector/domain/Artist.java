@@ -40,6 +40,11 @@ public class Artist {
 	public void setAge(int age) {
 		this.age = age;
 	}
+
+	@Override
+	public String toString() {
+		return "Artist [firstName=" + firstName + ", lastName=" + lastName + ", alias=" + alias + ", age=" + age + "]";
+	}
 	
 	
 

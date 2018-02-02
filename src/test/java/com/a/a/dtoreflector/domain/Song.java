@@ -8,6 +8,29 @@ public class Song {
 	private int year;
 	private double duration;
 	
+	
+	
+	public Song() {
+		super();
+	}
+	
+	public Song(String title, double duration) {
+		super();
+		this.title = title;
+		this.duration = duration;
+	}
+
+
+
+	public Song(String title, double duration, Artist artist) {
+		super();
+		this.title = title;
+		this.duration = duration;
+		this.artist = artist;
+	}
+
+
+
 	private Artist artist;
 	private List<Producer> producers;
 	
@@ -41,4 +64,42 @@ public class Song {
 	public void setProducers(List<Producer> producers) {
 		this.producers = producers;
 	}
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		long temp;
+		temp = Double.doubleToLongBits(duration);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		result = prime * result + ((title == null) ? 0 : title.hashCode());
+		result = prime * result + year;
+		return result;
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Song other = (Song) obj;
+		if (Double.doubleToLongBits(duration) != Double.doubleToLongBits(other.duration))
+			return false;
+		if (title == null) {
+			if (other.title != null)
+				return false;
+		} else if (!title.equals(other.title))
+			return false;
+		if (year != other.year)
+			return false;
+		return true;
+	}
+	@Override
+	public String toString() {
+		return "Song [title=" + title + ", year=" + year + ", duration=" + duration + ", artist=" + artist
+				+ ", producers=" + producers + "]";
+	}
+	
+	
 }
