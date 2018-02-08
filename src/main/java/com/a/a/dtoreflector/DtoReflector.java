@@ -19,12 +19,12 @@ import java.util.Set;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 
+import com.a.a.dtoreflector.annotation.DtoBigDecimalFromStr;
+import com.a.a.dtoreflector.annotation.DtoBigIntegerFromStr;
 import com.a.a.dtoreflector.annotation.DtoField;
 import com.a.a.dtoreflector.annotation.DtoIgnore;
 import com.a.a.dtoreflector.annotation.DtoIgnoreIfHasValue;
 import com.a.a.dtoreflector.annotation.DtoShallowCopy;
-import com.a.a.dtoreflector.annotation.DtoBigDecimalFromStr;
-import com.a.a.dtoreflector.annotation.DtoBigIntegerFromStr;
 
 public class DtoReflector {
 
@@ -70,15 +70,15 @@ public class DtoReflector {
 			sourceField.setAccessible(true);
 
 			Class<?> sourceFieldType = sourceField.getType();
-			if(isDtoShallowCopy(dtoFieldAnnotations)) 
+			if (isDtoShallowCopy(dtoFieldAnnotations)) 
 			{
 				dtoField.set(dtoDestination, sourceField.get(source));
 			} 
-			else if(isStringType(sourceFieldType) && isDtoToBigInteger(dtoFieldAnnotations)) 
+			else if (isStringType(sourceFieldType) && isDtoToBigInteger(dtoFieldAnnotations)) 
 			{
 				handleStrToBigIntegerFieldValue(source, dtoDestination, dtoField, sourceField);
 			} 
-			else if(isStringType(sourceFieldType) && isDtoToBigDecimal(dtoFieldAnnotations)) 
+			else if (isStringType(sourceFieldType) && isDtoToBigDecimal(dtoFieldAnnotations)) 
 			{
 				handleStrToBigDecimalFieldValue(source, dtoDestination, dtoField, sourceField);
 			} 
@@ -86,8 +86,7 @@ public class DtoReflector {
 			{
 				dtoField.set(dtoDestination, sourceField.get(source));
 			} 
-			else if(sourceFieldType.isArray()) 
-			{
+			else if (sourceFieldType.isArray()) {
 				handleArrayFieldValue(source, dtoDestination, dtoField, sourceField);
 			} 
 			else if (isCollectionAssignableType(sourceFieldType)) 
@@ -106,114 +105,115 @@ public class DtoReflector {
 		}
 		return dtoDestination;
 	}
-	
-	private static <S, D> void handleStrToBigIntegerFieldValue(S source, D dtoDestination, Field dtoField, Field sourceField)
-			throws IllegalArgumentException, IllegalAccessException, InstantiationException {
-		String str = (String)sourceField.get(source);
-		if(str == null) return;
+
+	private static <S, D> void handleStrToBigIntegerFieldValue(S source, D dtoDestination, Field dtoField,
+			Field sourceField) throws IllegalArgumentException, IllegalAccessException, InstantiationException {
+		String str = (String) sourceField.get(source);
+		if (str == null)
+			return;
 		BigInteger bi = new BigInteger(str);
 		dtoField.set(dtoDestination, bi);
 	}
-	
-	private static <S, D> void handleStrToBigDecimalFieldValue(S source, D dtoDestination, Field dtoField, Field sourceField)
-			throws IllegalArgumentException, IllegalAccessException, InstantiationException {
-		String str = (String)sourceField.get(source);
-		if(str == null) return;
-		
+
+	private static <S, D> void handleStrToBigDecimalFieldValue(S source, D dtoDestination, Field dtoField,
+			Field sourceField) throws IllegalArgumentException, IllegalAccessException, InstantiationException {
+		String str = (String) sourceField.get(source);
+		if (str == null)
+			return;
+
 		DtoBigDecimalFromStr annotation = dtoField.getAnnotation(DtoBigDecimalFromStr.class);
-		
+
 		String groupingSeparator = annotation.groupingSeparator();
-		if(groupingSeparator != null && !"".equals(groupingSeparator)) {
+		if (groupingSeparator != null && !"".equals(groupingSeparator)) {
 			str = str.replace(groupingSeparator, "");
 		}
-		
+
 		String decimalSeparator = annotation.decimalSeparator();
-		if(decimalSeparator != null && !"".equals(decimalSeparator)) {
+		if (decimalSeparator != null && !"".equals(decimalSeparator)) {
 			str = str.replace(decimalSeparator, ".");
 		}
-		
+
 		// parse the string
-		BigDecimal bigDecimal = new BigDecimal(str);		
+		BigDecimal bigDecimal = new BigDecimal(str);
 		dtoField.set(dtoDestination, bigDecimal);
 	}
-	
+
 	private static <S, D> void handleArrayFieldValue(S source, D dtoDestination, Field dtoField, Field sourceField)
 			throws IllegalArgumentException, IllegalAccessException, InstantiationException {
-		
+
 		Object sourceArray = sourceField.get(source);
-		if(sourceArray == null) {
+		if (sourceArray == null) {
 			return;
 		}
 		int sourceArrayLength = Array.getLength(sourceArray);
-		
+
 		Class<?> dtoArrayFieldClass = dtoField.getType();
 		Object dtoArray = Array.newInstance(dtoArrayFieldClass.getComponentType(), sourceArrayLength);
-		
-		if(isImmutableClass(sourceField.getType())) {
-			for(int i = 0; i < sourceArrayLength; i++) {
+
+		if (isImmutableClass(sourceField.getType())) {
+			for (int i = 0; i < sourceArrayLength; i++) {
 				Array.set(dtoArray, i, Array.get(sourceArray, i));
 			}
 		} else {
-			for(int i = 0; i < sourceArrayLength; i++) {
+			for (int i = 0; i < sourceArrayLength; i++) {
 				Array.set(dtoArray, i, toDto(Array.get(sourceArray, i), dtoArrayFieldClass.getComponentType()));
 			}
 		}
-		dtoField.set(dtoDestination, dtoArray);		
+		dtoField.set(dtoDestination, dtoArray);
 	}
 
 	private static <S, D> void handleMapFieldValue(S source, D dtoDestination, Field dtoField, Field sourceField)
 			throws IllegalArgumentException, IllegalAccessException, InstantiationException {
-		
-			Map sourceMap = (Map)sourceField.get(source);
-			if(sourceMap == null) {
-				// do not copy anything if the source map is null
-				return;
-			}
-			
-			Class<?> dtoMapClazz = dtoField.getType();
-			Map dtoMap = null;
-			if (dtoField.get(dtoDestination) != null) {
-				// if the destination map is already initialized
-				dtoMap = (Map) dtoField.get(dtoDestination);
-			} else {
-				// if the destination map is not initialized
-				dtoMap = assignMapType(dtoMapClazz);
-			}
-			
-			boolean isSourceMapKeyTypeImmutable = isImmutableClass(getParametrizedMapKeyType(sourceField));
-			boolean isSourceMapValueTypeImmutable= isImmutableClass(getParametrizedMapValueType(sourceField));
-			
-			Class<?> dtoMapKeyType = getParametrizedMapKeyType(dtoField);
-			Class<?> dtoMapValueType = getParametrizedMapValueType(dtoField);
-			
-			Set mapEntrySet = sourceMap.entrySet();
-			for(Object setElem : mapEntrySet) {
-				Map.Entry entry = (Map.Entry)setElem;
-				Object dtoMapKey = getDtoMapKeyOrValue(isSourceMapKeyTypeImmutable, dtoMapKeyType, entry.getKey());
-				Object dtoMapValue = getDtoMapKeyOrValue(isSourceMapValueTypeImmutable, dtoMapValueType, entry.getValue());
-				dtoMap.put(dtoMapKey, dtoMapValue);				
-			}
-			dtoField.set(dtoDestination, dtoMap);			
+
+		Map sourceMap = (Map) sourceField.get(source);
+		if (sourceMap == null) {
+			// do not copy anything if the source map is null
+			return;
+		}
+
+		Class<?> dtoMapClazz = dtoField.getType();
+		Map dtoMap = null;
+		if (dtoField.get(dtoDestination) != null) {
+			// if the destination map is already initialized
+			dtoMap = (Map) dtoField.get(dtoDestination);
+		} else {
+			// if the destination map is not initialized
+			dtoMap = assignMapType(dtoMapClazz);
+		}
+
+		boolean isSourceMapKeyTypeImmutable = isImmutableClass(getParametrizedMapKeyType(sourceField));
+		boolean isSourceMapValueTypeImmutable = isImmutableClass(getParametrizedMapValueType(sourceField));
+
+		Class<?> dtoMapKeyType = getParametrizedMapKeyType(dtoField);
+		Class<?> dtoMapValueType = getParametrizedMapValueType(dtoField);
+
+		Set mapEntrySet = sourceMap.entrySet();
+		for (Object setElem : mapEntrySet) {
+			Map.Entry entry = (Map.Entry) setElem;
+			Object dtoMapKey = getDtoMapKeyOrValue(isSourceMapKeyTypeImmutable, dtoMapKeyType, entry.getKey());
+			Object dtoMapValue = getDtoMapKeyOrValue(isSourceMapValueTypeImmutable, dtoMapValueType, entry.getValue());
+			dtoMap.put(dtoMapKey, dtoMapValue);
+		}
+		dtoField.set(dtoDestination, dtoMap);
 	}
 
-	private static Object getDtoMapKeyOrValue(boolean isSourceMapKeyTypeImmutable, Class<?> dtoMapKeyOrValueType, Object keyOrValue)
-			throws IllegalAccessException, InstantiationException {
+	private static Object getDtoMapKeyOrValue(boolean isSourceMapKeyTypeImmutable, Class<?> dtoMapKeyOrValueType,
+			Object keyOrValue) throws IllegalAccessException, InstantiationException {
 		Object dtoMapKeyOrValue = null;
-		if(isSourceMapKeyTypeImmutable) {
+		if (isSourceMapKeyTypeImmutable) {
 			dtoMapKeyOrValue = keyOrValue;
 		} else {
 			dtoMapKeyOrValue = toDto(keyOrValue, dtoMapKeyOrValueType);
 		}
 		return dtoMapKeyOrValue;
 	}
-	
+
 	private static boolean isImmutableClass(Class<?> clazz) {
 		return ClassUtils.isPrimitiveOrWrapper(clazz) || isStringType(clazz);
 	}
-	
-	private static Map assignMapType(Class<?> mapClazz)
-			throws InstantiationException, IllegalAccessException {
-		if(Map.class.equals(mapClazz)) {
+
+	private static Map assignMapType(Class<?> mapClazz) throws InstantiationException, IllegalAccessException {
+		if (Map.class.equals(mapClazz)) {
 			return new HashMap<>();
 		} else {
 			return (Map) mapClazz.newInstance();
@@ -242,7 +242,7 @@ public class DtoReflector {
 
 		Class<?> dtoCollectionClazz = dtoField.getType();
 		Collection dtoCollection = null;
-		
+
 		if (dtoField.get(dtoDestination) != null) {
 			// if the destination collection is already initialized
 			dtoCollection = (Collection) dtoField.get(dtoDestination);
@@ -250,7 +250,7 @@ public class DtoReflector {
 			// if the destination collection is not initialized
 			dtoCollection = assignCollectionType(dtoCollectionClazz);
 		}
-		
+
 		// get the generic type of the source collection
 		Class<?> sourceCollectionType = getParametrizedCollectionType(sourceField);
 
@@ -414,15 +414,15 @@ public class DtoReflector {
 	private static boolean isDtoIgnored(Annotation[] dtoFieldAnnotations) {
 		return isAnnotationPresent(dtoFieldAnnotations, DtoIgnore.class);
 	}
-	
+
 	private static boolean isDtoToBigInteger(Annotation[] dtoFieldAnnotations) {
 		return isAnnotationPresent(dtoFieldAnnotations, DtoBigIntegerFromStr.class);
 	}
-	
+
 	private static boolean isDtoToBigDecimal(Annotation[] dtoFieldAnnotations) {
 		return isAnnotationPresent(dtoFieldAnnotations, DtoBigDecimalFromStr.class);
 	}
-	
+
 	private static boolean isDtoShallowCopy(Annotation[] dtoFieldAnnotations) {
 		return isAnnotationPresent(dtoFieldAnnotations, DtoShallowCopy.class);
 	}
@@ -479,6 +479,30 @@ public class DtoReflector {
 		D dtoDestination = dtoClazz.newInstance();
 		return toDto(source, dtoDestination);
 
+	}
+
+	/**
+	 * Creates a list containing new instances of the dto classes
+	 * passed to this method. All the data that is copied comes from
+	 * the source object.
+	 * @param source
+	 * @param dtoClasses
+	 * @return
+	 * @throws IllegalArgumentException
+	 * @throws IllegalAccessException
+	 * @throws InstantiationException
+	 */
+	public static <S> List<?> toDtos(S source, List<Class<?>> dtoClasses)
+			throws IllegalArgumentException, IllegalAccessException, InstantiationException {
+		if (dtoClasses == null) {
+			throw new IllegalStateException("Passed list of dto classes was null!");
+		}
+		List<Object> dtoInstances = new ArrayList<>();
+		for (Class<?> dtoClazz : dtoClasses) {
+			Object dto = toDto(source, dtoClazz);
+			dtoInstances.add(dto);
+		}
+		return dtoInstances;
 	}
 
 }
